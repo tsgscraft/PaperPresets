@@ -36,6 +36,21 @@ public class TemplateClickableInventoryCommand {
                     })
                     .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
                     .build(player);
+        }else if (arg1 == 2){
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test3"))
+                    .setItem(new ItemPos(0), Material.GRASS_BLOCK, (event, inv1) -> {
+                        new ClickableInventory(PaperPresets.getInstance(), InventorySize.TWO, Component.text("test3.2"))
+                                .setItem(new ItemPos(0), Material.COBBLESTONE, (event2, inv2) -> {
+                                    new ClickableInventory(PaperPresets.getInstance(), InventorySize.THREE, Component.text("test3.3"))
+                                            .setItem(new ItemPos(0), Material.OAK_LOG, null)
+                                            .setItem(new ItemPos(1), Material.OAK_PLANKS, (event3, inv3) -> event3.getWhoClicked().sendMessage("Stone Clicked!!!"))
+                                            .build(player, inv2);
+                                })
+                                .setItem(new ItemPos(1), Material.STONE, (event2, inv2) -> event.getWhoClicked().sendMessage("Stone Clicked!!!"))
+                                .build(player, inv1);
+                    })
+                    .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
+                    .build(player);
         }
         return Command.SINGLE_SUCCESS;
     }
