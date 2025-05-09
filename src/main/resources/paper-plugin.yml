@@ -1,0 +1,6 @@
+name: PaperPresets
+version: '1.0'
+main: de.tsgscraft.paperPresets.PaperPresets
+api-version: '1.21'
+authors: [ tsgscraft ]
+bootstrapper: de.tsgscraft.paperPresets.Bootstrap
