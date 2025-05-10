@@ -4,12 +4,24 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
+import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemBuilder;
+import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemVariant;
 import de.tsgscraft.paperPresets.PaperPresets;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+
+import java.nio.Buffer;
+import java.util.UUID;
 
 public class TemplateClickableInventoryCommand {
     public static LiteralCommandNode<CommandSourceStack> create() {
@@ -50,6 +62,62 @@ public class TemplateClickableInventoryCommand {
                                 .build(player, inv1);
                     })
                     .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
+                    .build(player);
+        }else if (arg1 == 3){
+            ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on");
+            ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off");
+
+            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+                    .setName(Component.text("test"))
+                    .addVariants(variantOn, variantOff)
+                    .build();
+
+            changeItem.setActive("off");
+
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test3.1"))
+                    .setItem(new ItemPos(0), changeItem, (event, inv1) -> {
+                        ClickableInventory.updateChangeItem(event, item -> {
+                            ChangeItemVariant selected = item.getSelected();
+                            if (selected != null)
+                                return item.getSelected().getVariantID().equals("on") ? "off" : "on";
+                            return "off";
+                        });
+                    })
+                    .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
+                    .build(player);
+        }else if (arg1 == 4){
+            ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on");
+            ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off");
+
+            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+                    .setName(Component.text("test"))
+                    .addVariants(variantOn, variantOff)
+                    .build();
+
+            changeItem.setActive("off");
+
+            ClickedAction action = (event, inv) -> ClickableInventory.updateChangeItem(event, item -> {
+                ChangeItemVariant selected = item.getSelected();
+                if (selected != null){
+                    return item.getSelected().getVariantID().equals("on") ? "off" : "on";
+                    }
+                return "off";
+            });
+
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test3.1"))
+                    .setItem(new ItemPos(0), changeItem, action)
+                    .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
+                    .build(player);
+
+            ClickableInventory inv2 = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test3.2"))
+                    .setItem(new ItemPos(0), changeItem, action)
+                    .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
+                    .build(Bukkit.getPlayer("tsgs25"));
+        }else if (arg1 == 5){
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.THREE, Component.text("Security System"))
+                    .setItem(new ItemPos(2, 1), PaperPresets.getSecurityDisableItem(), PaperPresets.getSecurityDisableAction())
+                    .setItem(new ItemPos(3, 1), PaperPresets.getSecurityResetItem(), PaperPresets.getSecurityResetAction())
+                    .setItem(new ItemPos(6, 1), PaperPresets.getSecurityActivateItem(), PaperPresets.getSecurityActivateAction())
                     .build(player);
         }
         return Command.SINGLE_SUCCESS;

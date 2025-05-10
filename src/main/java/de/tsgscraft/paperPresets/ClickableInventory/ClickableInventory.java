@@ -1,12 +1,12 @@
 package de.tsgscraft.paperPresets.ClickableInventory;
 
+import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
+import de.tsgscraft.paperPresets.ClickableInventory.Items.InventoryChangeItems;
 import de.tsgscraft.paperPresets.PaperPresets;
-import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -19,9 +19,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ClickableInventory implements InventoryHolder {
 
@@ -32,8 +30,11 @@ public class ClickableInventory implements InventoryHolder {
     @Nullable private ClickableInventory previousInv;
 
     private Map<Integer, ClickedAction> actionMap = new HashMap<>();
+    private Map<UUID, Integer> actionChangeMap = new HashMap<>();
+    private List<ChangeItem> changeItems = new ArrayList<>();
 
-    NamespacedKey actionKey = new NamespacedKey(PaperPresets.getInstance(), "click_action");
+    private NamespacedKey actionKey = new NamespacedKey(PaperPresets.getInstance(), "click_action");
+    private static NamespacedKey changeKey = new NamespacedKey(PaperPresets.getInstance(), "change_uuid");
 
     public ClickableInventory(Plugin plugin, InventorySize size){
         this.inv = plugin.getServer().createInventory(this, 9* size.getAsInt());
@@ -93,6 +94,18 @@ public class ClickableInventory implements InventoryHolder {
         return this;
     }
 
+    public ClickableInventory setItem(ItemPos pos, ChangeItem item, @Nullable ClickedAction action){
+        changeItems.add(item);
+        if (action != null)
+            actionChangeMap.put(item.getUniqueId(), action.hashCode());
+        if (item.getSelected() != null) {
+            setItem(pos, item.getSelected().getItemStack(), action);
+        }else {
+            setItem(pos, (ItemStack) item, action);
+        }
+        return this;
+    }
+
     public ClickableInventory setItem(ItemPos pos, ItemStack item, @Nullable ClickedAction action){
         if (action != null) {
             item.editMeta(meta -> {
@@ -136,12 +149,89 @@ public class ClickableInventory implements InventoryHolder {
         player.openInventory(inv);
     }
 
+    public ItemStack[] getContents(){
+        return inv.getContents();
+    }
+
     public void runAction(ItemStack item, InventoryClickEvent event) {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         if (container.has(actionKey, PersistentDataType.INTEGER)) {
             int value = container.get(actionKey, PersistentDataType.INTEGER);
             actionMap.get(value).run(event, this);
         }
+    }
+/*
+
+                        if (event.getCurrentItem().hasItemMeta()) {
+                            NamespacedKey key = ClickableInventory.getChangeKey();
+                            PersistentDataContainer container = event.getCurrentItem().getItemMeta().getPersistentDataContainer();
+                            if (container.has(key, PersistentDataType.STRING)) {
+                                String value = container.get(key, PersistentDataType.STRING);
+                                ChangeItemVariant selected = ClickableInventory.getChangeItem(UUID.fromString(value)).getFirst().getSelected();
+                                if (selected != null)
+                                    ClickableInventory.updateChangeItem(UUID.fromString(value), selected.getVariantID().equals("on") ? "off" : "on");
+                            }
+                        }
+ */
+    public static void updateChangeItem(UUID uuid, String variant){
+        for (InventoryChangeItems changeItem : getChangeItem(uuid)){
+            ChangeItem item = changeItem.getItem();
+            item.setActive(variant);
+            Integer actionId = changeItem.getClickableInventory().getActionChangeMap().get(item.getUniqueId());
+            for (int slot : changeItem.getSlot()) {
+                if (actionId != null) {
+                    changeItem.getClickableInventory().setItem(new ItemPos(slot), item.getSelected() != null ? item.getSelected().getItemStack() : item, changeItem.getClickableInventory().getActionMap().get(actionId));
+                } else {
+                    changeItem.getClickableInventory().setItem(new ItemPos(slot), item.getSelected() != null ? item.getSelected().getItemStack() : item, null);
+                }
+            }
+        }
+    }
+
+    public interface VariantFilter {
+        String filter(ChangeItem item);
+    }
+
+    public static void updateChangeItem(InventoryClickEvent event, VariantFilter variant){
+        if (event.getCurrentItem().hasItemMeta()) {
+            NamespacedKey key = ClickableInventory.getChangeKey();
+            PersistentDataContainer container = event.getCurrentItem().getItemMeta().getPersistentDataContainer();
+            if (container.has(key, PersistentDataType.STRING)) {
+                String value = container.get(key, PersistentDataType.STRING);
+                ClickableInventory.updateChangeItem(UUID.fromString(value), variant.filter(ClickableInventory.getChangeItem(UUID.fromString(value)).getFirst().getItem()));
+            }
+        }
+    }
+
+    public static List<InventoryChangeItems> getChangeItem(UUID uuid) {
+        List<InventoryChangeItems> output = new ArrayList<>();
+        for (Player allPlayers : Bukkit.getOnlinePlayers()){
+            if (allPlayers.getOpenInventory().getTopInventory().getHolder(false) instanceof ClickableInventory clickableInventory){
+                for (ChangeItem changeItem : clickableInventory.getChangeItems()) {
+                    if (changeItem.getUniqueId().equals(uuid)){
+                        output.add(new InventoryChangeItems(clickableInventory, changeItem));
+                        break;
+                    }
+                }
+            }
+        }
+        return output;
+    }
+
+    public static NamespacedKey getChangeKey(){
+        return changeKey;
+    }
+
+    private List<ChangeItem> getChangeItems() {
+        return changeItems;
+    }
+
+    public Map<Integer, ClickedAction> getActionMap() {
+        return actionMap;
+    }
+
+    public Map<UUID, Integer> getActionChangeMap() {
+        return actionChangeMap;
     }
 
     @Override
