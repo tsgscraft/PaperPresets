@@ -160,19 +160,7 @@ public class ClickableInventory implements InventoryHolder {
             actionMap.get(value).run(event, this);
         }
     }
-/*
 
-                        if (event.getCurrentItem().hasItemMeta()) {
-                            NamespacedKey key = ClickableInventory.getChangeKey();
-                            PersistentDataContainer container = event.getCurrentItem().getItemMeta().getPersistentDataContainer();
-                            if (container.has(key, PersistentDataType.STRING)) {
-                                String value = container.get(key, PersistentDataType.STRING);
-                                ChangeItemVariant selected = ClickableInventory.getChangeItem(UUID.fromString(value)).getFirst().getSelected();
-                                if (selected != null)
-                                    ClickableInventory.updateChangeItem(UUID.fromString(value), selected.getVariantID().equals("on") ? "off" : "on");
-                            }
-                        }
- */
     public static void updateChangeItem(UUID uuid, String variant){
         for (InventoryChangeItems changeItem : getChangeItem(uuid)){
             ChangeItem item = changeItem.getItem();

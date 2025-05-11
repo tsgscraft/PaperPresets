@@ -54,5 +54,13 @@ public class ChangeItem extends ItemStack {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+        this.editMeta(meta -> {
+            meta.getPersistentDataContainer().set(ClickableInventory.getChangeKey(), PersistentDataType.STRING, uuid.toString());
+        });
+        variants.forEach((s, changeItemVariant) -> {
+            changeItemVariant.editMeta(meta -> {
+                meta.getPersistentDataContainer().set(ClickableInventory.getChangeKey(), PersistentDataType.STRING, uuid.toString());
+            });
+        });
     }
 }

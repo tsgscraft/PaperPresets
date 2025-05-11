@@ -7,6 +7,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemBuilder;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemVariant;
+import de.tsgscraft.paperPresets.ClickableInventory.Items.ColorItem;
 import de.tsgscraft.paperPresets.PaperPresets;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -118,6 +119,33 @@ public class TemplateClickableInventoryCommand {
                     .setItem(new ItemPos(2, 1), PaperPresets.getSecurityDisableItem(), PaperPresets.getSecurityDisableAction())
                     .setItem(new ItemPos(3, 1), PaperPresets.getSecurityResetItem(), PaperPresets.getSecurityResetAction())
                     .setItem(new ItemPos(6, 1), PaperPresets.getSecurityActivateItem(), PaperPresets.getSecurityActivateAction())
+                    .build(player);
+        }else if (arg1 == 6){
+            ColorItem colorItem = new ColorItem(player);
+            ColorItem colorItem2 = new ColorItem(player);
+
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.THREE, Component.text("Security System"))
+                    .setItem(new ItemPos(0, 0), colorItem.getChangeItem(), null)
+                    .setItem(new ItemPos(1, 0), colorItem.getChangeItem(), null)
+                    .setItem(new ItemPos(2, 0), colorItem.getChangeItem(), null)
+                    .setItem(new ItemPos(3, 0), colorItem2.getChangeItem(), null)
+                    .setItem(new ItemPos(2, 1), Material.WHITE_STAINED_GLASS_PANE, (event, inv1) -> {
+                        ColorItem.setVariant((Player) event.getWhoClicked(), ColorItem.Color.WHITE);
+                    })
+                    .setItem(new ItemPos(6, 1), Material.BLACK_STAINED_GLASS_PANE, (event, inv1) -> {
+                        ColorItem.setVariant((Player) event.getWhoClicked(), ColorItem.Color.BLACK);
+                    })
+                    .build(player);
+        }else if (arg1 == 7){
+            ColorItem.colorPicker(player, null, null);
+        }else if (arg1 == 8){
+            ColorItem.colorPicker(player, Component.text("Custom Name"), null);
+        }else if (arg1 == 9){
+            ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test2"))
+                    .setItem(new ItemPos(0), Material.GRASS_BLOCK, (event, inv1) -> {
+                        ColorItem.colorPicker(player, Component.text("Custom Name"), inv1);
+                    })
+                    .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
                     .build(player);
         }
         return Command.SINGLE_SUCCESS;
