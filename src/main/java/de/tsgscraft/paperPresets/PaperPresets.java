@@ -6,14 +6,25 @@ import de.tsgscraft.paperPresets.ClickableInventory.ClickedListener;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemBuilder;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemVariant;
+import de.tsgscraft.paperPresets.Configuration.ExampleConfig;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.translation.GlobalTranslator;
+import net.kyori.adventure.translation.TranslationStore;
+import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public final class PaperPresets extends JavaPlugin {
@@ -39,11 +50,28 @@ public final class PaperPresets extends JavaPlugin {
         logger = getLogger();
         plugin = this;
         scheduler = this.getServer().getScheduler();
+
+        saveDefaultConfig();
+
+        ExampleConfig exampleConfig = new ExampleConfig();
+        exampleConfig.activate(this, "test", null);
+
         getServer().getPluginManager().registerEvents(new ClickedListener(), this);
 
         createSecurityReset();
         createSecurityActivate();
         createSecurityOnOff();
+
+        TranslationStore.StringBased<MessageFormat> store = TranslationStore.messageFormat(Key.key("namespace:value"));
+
+        List<Locale> locales = new ArrayList<>();
+        locales.add(Locale.US);
+        locales.add(Locale.GERMANY);
+        for (Locale locale : locales){
+            ResourceBundle bundle = ResourceBundle.getBundle("paper_presets.lang.Lang", locale, UTF8ResourceBundleControl.get());
+            store.registerAll(locale, bundle, true);
+            GlobalTranslator.translator().addSource(store);
+        }
     }
 
     private void createSecurityActivate(){

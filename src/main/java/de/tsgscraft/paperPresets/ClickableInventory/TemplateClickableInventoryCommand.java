@@ -147,6 +147,8 @@ public class TemplateClickableInventoryCommand {
                     })
                     .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
                     .build(player);
+        }else if (arg1 == 10){
+            player.sendMessage(Component.translatable("some.translation.key", Component.text("The Argument")));
         }
         return Command.SINGLE_SUCCESS;
     }
