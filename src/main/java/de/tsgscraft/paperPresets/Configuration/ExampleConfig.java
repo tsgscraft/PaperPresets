@@ -1,20 +1,21 @@
 package de.tsgscraft.paperPresets.Configuration;
 
 import de.tsgscraft.paperPresets.PaperPresets;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+
+import java.io.File;
 
 public class ExampleConfig extends Configuration {
     @Override
-    public void preload() {
+    public void preload(Plugin plugin, String name, String fileName, File parent) {
 
     }
 
     @Override
-    public void enabled() {
+    public void enabled(Plugin plugin, String name, File file) {
         set("test", "asd");
         set("test2", 42);
         set("test3.asd", true);
-        PaperPresets.getLog().info(get("test").toString());
+        //PaperPresets.getLog().info(get("test").toString());
     }
 }

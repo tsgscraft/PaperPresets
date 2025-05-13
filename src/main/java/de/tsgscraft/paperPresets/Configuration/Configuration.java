@@ -1,5 +1,6 @@
 package de.tsgscraft.paperPresets.Configuration;
 
+import de.tsgscraft.paperPresets.PaperPresets;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -11,14 +12,27 @@ import java.util.Objects;
 
 public abstract class Configuration {
     private File file = null;
+    private File parent = null;
     private YamlConfiguration config = null;
     private boolean autoSave = true;
     private String name;
     private Plugin plugin;
+    private String fileName;
 
-    public abstract void preload();
+    /**
+     * This gets called when you activate it.
+     * Execute function saveDefault() here.
+     */
+    public abstract void preload(Plugin plugin, String name, String fileName, File parent);
 
-    public abstract void enabled();
+    public abstract void enabled(Plugin plugin, String name, File file);
+
+    public void saveDefault(String path, boolean replace){
+        File file1 = new File(parent, fileName);
+        if (file1.exists() && !replace) return;
+        plugin.saveResource(path, replace);
+        PaperPresets.debugLog("Overwritten config: " + name);
+    }
 
     public ConfigurationSection getSection(String path){
         return config.getConfigurationSection(path);
@@ -45,6 +59,7 @@ public abstract class Configuration {
         } catch (IOException e) {
             throw new ConfigurationSaveError(name, e);
         }
+        PaperPresets.debugLog("Saved config: " + name);
     }
 
     public void setAutoSave(boolean autoSave) {
@@ -63,34 +78,14 @@ public abstract class Configuration {
         return config;
     }
 
-    /*
-    public Config(String name, File path){
-        file = new File(path, name);
-        if (!file.exists()) {
-            path.mkdirs();
-        }
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        configuration = new YamlConfiguration();
-        try {
-            configuration.load(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-    }
-     */
-
     public void activate(Plugin plugin, String name, @Nullable File folder){
-        preload();
+        PaperPresets.debugLog("Activating config: " + name);
         this.plugin = plugin;
         this.name = name;
-        String fileName = name + ".yml";
-        file = new File(Objects.requireNonNullElseGet(folder, plugin::getDataFolder), fileName);
+        this.fileName = name + ".yml";
+        this.parent = Objects.requireNonNullElseGet(folder, plugin::getDataFolder);
+        preload(plugin, name, fileName, parent);
+        file = new File(this.parent, fileName);
         if (!file.exists()){
             file.getParentFile().mkdirs();
         }
@@ -101,6 +96,7 @@ public abstract class Configuration {
         }
         config = YamlConfiguration.loadConfiguration(file);
         save();
-        enabled();
+        enabled(plugin, name, file);
+        PaperPresets.debugLog("Done activating config: " + name);
     }
 }

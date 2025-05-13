@@ -4,6 +4,7 @@ import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.InventoryChangeItems;
 import de.tsgscraft.paperPresets.PaperPresets;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -23,6 +24,8 @@ import java.util.*;
 
 public class ClickableInventory implements InventoryHolder {
 
+    private static String invName;
+
     private Player player;
 
     private final Inventory inv;
@@ -38,10 +41,14 @@ public class ClickableInventory implements InventoryHolder {
 
     public ClickableInventory(Plugin plugin, InventorySize size){
         this.inv = plugin.getServer().createInventory(this, 9* size.getAsInt());
+        invName = "Chest";
+        PaperPresets.debugLog("Creating Clickable Inventory of Size: " + size.name());
     }
 
     public ClickableInventory(Plugin plugin, InventorySize size, Component name){
         this.inv = plugin.getServer().createInventory(this, 9* size.getAsInt(), name);
+        invName = ((TextComponent) name).content();
+        PaperPresets.debugLog("Creating Clickable Inventory(" + name + ") of Size: " + size.name());
     }
 
     // name
@@ -114,18 +121,25 @@ public class ClickableInventory implements InventoryHolder {
             actionMap.put(action.hashCode(), action);
         }
         inv.setItem(pos.getAsIndex(), item);
+        debug("Added Item: " + item.getType() + "   Index:" + pos.getAsIndex());
         return this;
     }
 
     public ClickableInventory build(Player player){
         this.player = player;
         openInventory();
+        debug("Build Inventory with Player: " + player.getName());
         return this;
     }
 
     public ClickableInventory build(Player player, ClickableInventory oldInv){
         setPreviousInv(oldInv);
+        debug("Building Inventory with Old Inventory: " + oldInv.getName());
         return build(player);
+    }
+
+    private String getName() {
+        return invName;
     }
 
     public void setPreviousInv(@Nullable ClickableInventory previousInv) {
@@ -147,6 +161,7 @@ public class ClickableInventory implements InventoryHolder {
 
     public void openInventory() {
         player.openInventory(inv);
+        debug("Opened Inventory for: " + player.getName());
     }
 
     public ItemStack[] getContents(){
@@ -157,11 +172,14 @@ public class ClickableInventory implements InventoryHolder {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         if (container.has(actionKey, PersistentDataType.INTEGER)) {
             int value = container.get(actionKey, PersistentDataType.INTEGER);
+            debug("Running Click Action for: " + item.getType() + "(" + value + ")");
             actionMap.get(value).run(event, this);
+            debug("Done running Click Action for: " + item.getType() + "(" + value + ")");
         }
     }
 
     public static void updateChangeItem(UUID uuid, String variant){
+        globalDebug("Updating all Changeable Items(" + uuid + ") to " + variant);
         for (InventoryChangeItems changeItem : getChangeItem(uuid)){
             ChangeItem item = changeItem.getItem();
             item.setActive(variant);
@@ -174,6 +192,7 @@ public class ClickableInventory implements InventoryHolder {
                 }
             }
         }
+        globalDebug("Done updating all Changeable Items(" + uuid + ") to " + variant);
     }
 
     public interface VariantFilter {
@@ -181,6 +200,7 @@ public class ClickableInventory implements InventoryHolder {
     }
 
     public static void updateChangeItem(InventoryClickEvent event, VariantFilter variant){
+        globalDebug("Triggered updating Changeable Items through event");
         if (event.getCurrentItem().hasItemMeta()) {
             NamespacedKey key = ClickableInventory.getChangeKey();
             PersistentDataContainer container = event.getCurrentItem().getItemMeta().getPersistentDataContainer();
@@ -231,5 +251,13 @@ public class ClickableInventory implements InventoryHolder {
                 ", actionMap=" + actionMap +
                 ", actionKey=" + actionKey +
                 '}';
+    }
+
+    private static void globalDebug(String msg){
+        PaperPresets.debugLog("Clickable Inventories > " + msg);
+    }
+
+    private static void debug(String msg){
+        PaperPresets.debugLog("Clickable Inventory(" + invName + ") > " + msg);
     }
 }

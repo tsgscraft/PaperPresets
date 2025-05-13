@@ -1,6 +1,7 @@
 package de.tsgscraft.paperPresets.ClickableInventory.Items;
 
 import de.tsgscraft.paperPresets.ClickableInventory.ClickableInventory;
+import de.tsgscraft.paperPresets.PaperPresets;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +31,7 @@ public class ChangeItem extends ItemStack {
                 meta.getPersistentDataContainer().set(ClickableInventory.getChangeKey(), PersistentDataType.STRING, uuid.toString());
             });
         });
+        PaperPresets.debugLog("Creating Changeable Item: " + builder.getName());
     }
 
     public UUID getUniqueId() {

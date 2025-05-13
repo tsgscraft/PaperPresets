@@ -7,6 +7,7 @@ import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItem;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemBuilder;
 import de.tsgscraft.paperPresets.ClickableInventory.Items.ChangeItemVariant;
 import de.tsgscraft.paperPresets.Configuration.ExampleConfig;
+import de.tsgscraft.paperPresets.internals.MainConfig;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.translation.GlobalTranslator;
@@ -17,6 +18,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -44,6 +46,8 @@ public final class PaperPresets extends JavaPlugin {
     private static ChangeItem securityActivateItem;
     private static ClickedAction securityActivateAction;
 
+    private static boolean enabledDebugLogging = true;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -51,7 +55,10 @@ public final class PaperPresets extends JavaPlugin {
         plugin = this;
         scheduler = this.getServer().getScheduler();
 
-        saveDefaultConfig();
+        MainConfig config = new MainConfig();
+        config.activate(this, "config", null);
+
+        enabledDebugLogging = (boolean) config.get("debug_log");
 
         ExampleConfig exampleConfig = new ExampleConfig();
         exampleConfig.activate(this, "test", null);
@@ -188,5 +195,15 @@ public final class PaperPresets extends JavaPlugin {
 
     public static ClickedAction getSecurityResetAction() {
         return securityResetAction;
+    }
+
+    public static void debugLog(String msg){
+        debugLog(plugin, msg);
+    }
+
+    public static void debugLog(Plugin plugin, String msg){
+        if (enabledDebugLogging){
+            logger.info(plugin.getName().toLowerCase() + " >> " + msg);
+        }
     }
 }
