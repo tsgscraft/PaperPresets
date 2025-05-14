@@ -63,10 +63,6 @@
                             <goal>javadoc</goal>
                             <goal>jar</goal>
                         </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <outputDirectory>${project.basedir}/docs</outputDirectory>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
