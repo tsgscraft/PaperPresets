@@ -7,14 +7,24 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      # 1) Maven Build & Deploy in target/repo
+      # 1) JDK 21 installieren
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      # 2) Maven Build & Deploy in target/repo
       - name: Build and Deploy to Local Repo
         run: mvn clean deploy -DskipTests
+      # → Jetzt kompiliert Javac mit Release 21 ohne Fehler :contentReference[oaicite:4]{index=4}
 
-      # 2) Deploy das Maven-Repo per Cloudflare Pages
+      # 3) Deploy das Maven-Repo auf repo.tsgscraft.com
       - name: Deploy Maven Repo to repo.tsgscraft.com
         uses: cloudflare/pages-action@v1
         with:
@@ -22,8 +32,8 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: repo-tsgscraft
           directory: target/repo
-          
-      # 3) Entpacke Javadoc und deploye auf ppdocs.tsgscraft.com
+
+      # 4) Javadoc entpacken & deployen
       - name: Unpack Javadoc
         run: |
           mkdir docs
