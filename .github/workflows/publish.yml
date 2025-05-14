@@ -1,0 +1,37 @@
+name: Publish Maven Artifacts & Javadoc
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1) Maven Build & Deploy in target/repo
+      - name: Build and Deploy to Local Repo
+        run: mvn clean deploy -DskipTests
+
+      # 2) Deploy das Maven-Repo per Cloudflare Pages
+      - name: Deploy Maven Repo to repo.tsgscraft.com
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: repo-tsgscraft
+          directory: target/repo
+          
+      # 3) Entpacke Javadoc und deploye auf ppdocs.tsgscraft.com
+      - name: Unpack Javadoc
+        run: |
+          mkdir docs
+          unzip target/*.javadoc.jar -d docs
+      - name: Deploy Javadoc to ppdocs.tsgscraft.com
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ppdocs-tsgscraft
+          directory: docs
