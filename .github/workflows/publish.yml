@@ -37,7 +37,7 @@ jobs:
       - name: Unpack Javadoc
         run: |
           mkdir docs
-          unzip target/*.javadoc.jar -d docs
+          unzip target/*-javadoc.jar -d docs
       - name: Deploy Javadoc to ppdocs.tsgscraft.com
         uses: cloudflare/pages-action@v1
         with:
