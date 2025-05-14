@@ -31,7 +31,7 @@ public abstract class Configuration {
         File file1 = new File(parent, fileName);
         if (file1.exists() && !replace) return;
         plugin.saveResource(path, replace);
-        PaperPresets.debugLog("Overwritten config: " + name);
+        PaperPresets.debugLog(plugin, "Overwritten config: " + name);
     }
 
     public ConfigurationSection getSection(String path){
@@ -59,7 +59,7 @@ public abstract class Configuration {
         } catch (IOException e) {
             throw new ConfigurationSaveError(name, e);
         }
-        PaperPresets.debugLog("Saved config: " + name);
+        PaperPresets.debugLog(plugin, "Saved config: " + name);
     }
 
     public void setAutoSave(boolean autoSave) {
@@ -79,7 +79,7 @@ public abstract class Configuration {
     }
 
     public void activate(Plugin plugin, String name, @Nullable File folder){
-        PaperPresets.debugLog("Activating config: " + name);
+        PaperPresets.debugLog(plugin, "Activating config: " + name);
         this.plugin = plugin;
         this.name = name;
         this.fileName = name + ".yml";
@@ -97,6 +97,6 @@ public abstract class Configuration {
         config = YamlConfiguration.loadConfiguration(file);
         save();
         enabled(plugin, name, file);
-        PaperPresets.debugLog("Done activating config: " + name);
+        PaperPresets.debugLog(plugin, "Done activating config: " + name);
     }
 }

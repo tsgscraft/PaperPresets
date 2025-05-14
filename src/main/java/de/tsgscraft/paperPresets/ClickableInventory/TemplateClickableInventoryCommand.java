@@ -14,15 +14,7 @@ import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-
-import java.nio.Buffer;
-import java.util.UUID;
 
 public class TemplateClickableInventoryCommand {
     public static LiteralCommandNode<CommandSourceStack> create() {
@@ -68,7 +60,7 @@ public class TemplateClickableInventoryCommand {
             ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on");
             ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off");
 
-            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL, PaperPresets.getInstance())
                     .setName(Component.text("test"))
                     .addVariants(variantOn, variantOff)
                     .build();
@@ -90,7 +82,7 @@ public class TemplateClickableInventoryCommand {
             ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on");
             ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off");
 
-            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+            ChangeItem changeItem = new ChangeItemBuilder(Material.BLACK_WOOL, PaperPresets.getInstance())
                     .setName(Component.text("test"))
                     .addVariants(variantOn, variantOff)
                     .build();
@@ -121,8 +113,8 @@ public class TemplateClickableInventoryCommand {
                     .setItem(new ItemPos(6, 1), PaperPresets.getSecurityActivateItem(), PaperPresets.getSecurityActivateAction())
                     .build(player);
         }else if (arg1 == 6){
-            ColorItem colorItem = new ColorItem(player);
-            ColorItem colorItem2 = new ColorItem(player);
+            ColorItem colorItem = new ColorItem(player, PaperPresets.getInstance());
+            ColorItem colorItem2 = new ColorItem(player, PaperPresets.getInstance());
 
             ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.THREE, Component.text("Security System"))
                     .setItem(new ItemPos(0, 0), colorItem.getChangeItem(), null)
@@ -137,13 +129,13 @@ public class TemplateClickableInventoryCommand {
                     })
                     .build(player);
         }else if (arg1 == 7){
-            ColorItem.colorPicker(player, null, null);
+            ColorItem.colorPicker(PaperPresets.getInstance(), player, null, null);
         }else if (arg1 == 8){
-            ColorItem.colorPicker(player, Component.text("Custom Name"), null);
+            ColorItem.colorPicker(PaperPresets.getInstance(), player, Component.text("Custom Name"), null);
         }else if (arg1 == 9){
             ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.ONE, Component.text("test2"))
                     .setItem(new ItemPos(0), Material.GRASS_BLOCK, (event, inv1) -> {
-                        ColorItem.colorPicker(player, Component.text("Custom Name"), inv1);
+                        ColorItem.colorPicker(PaperPresets.getInstance(), player, Component.text("Custom Name"), inv1);
                     })
                     .setItem(new ItemPos(1), Material.DIRT, (event, inv1) -> event.getWhoClicked().sendMessage("Dirt Clicked!!!"))
                     .build(player);

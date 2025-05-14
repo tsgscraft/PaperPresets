@@ -17,7 +17,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -47,6 +46,7 @@ public final class PaperPresets extends JavaPlugin {
     private static ClickedAction securityActivateAction;
 
     private static boolean enabledDebugLogging = true;
+    private static boolean enableTestCommand = false;
 
     @Override
     public void onEnable() {
@@ -59,6 +59,7 @@ public final class PaperPresets extends JavaPlugin {
         config.activate(this, "config", null);
 
         enabledDebugLogging = (boolean) config.get("debug_log");
+        enableTestCommand = (boolean) config.get("enable_example_command");
 
         ExampleConfig exampleConfig = new ExampleConfig();
         exampleConfig.activate(this, "test", null);
@@ -85,7 +86,7 @@ public final class PaperPresets extends JavaPlugin {
         ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on").setName(Component.text("§aON"));
         ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off").setName(Component.text("§cOFF"));
 
-        securityActivateItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+        securityActivateItem = new ChangeItemBuilder(Material.BLACK_WOOL, getInstance())
                 .setName(Component.text("test"))
                 .addVariants(variantOn, variantOff)
                 .build();
@@ -110,7 +111,7 @@ public final class PaperPresets extends JavaPlugin {
         ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on").setName(Component.text("§aON"));
         ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off").setName(Component.text("§cOFF"));
 
-        securityResetItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+        securityResetItem = new ChangeItemBuilder(Material.BLACK_WOOL, getInstance())
                 .setName(Component.text("test"))
                 .addVariants(variantOn, variantOff)
                 .build();
@@ -135,7 +136,7 @@ public final class PaperPresets extends JavaPlugin {
         ChangeItemVariant variantOn = new ChangeItemVariant(Material.LIME_WOOL, "on").setName(Component.text("§aON"));
         ChangeItemVariant variantOff = new ChangeItemVariant(Material.RED_WOOL, "off").setName(Component.text("§cOFF"));
 
-        securityDisableItem = new ChangeItemBuilder(Material.BLACK_WOOL)
+        securityDisableItem = new ChangeItemBuilder(Material.BLACK_WOOL, getInstance())
                 .setName(Component.text("test"))
                 .addVariants(variantOn, variantOff)
                 .build();
@@ -203,7 +204,13 @@ public final class PaperPresets extends JavaPlugin {
 
     public static void debugLog(Plugin plugin, String msg){
         if (enabledDebugLogging){
-            logger.info(plugin.getName().toLowerCase() + " >> " + msg);
+            logger.info(plugin.getName() + " >> " + msg);
+        }
+    }
+
+    public static void globalDebugLog(String msg){
+        if (enabledDebugLogging){
+            logger.info(" >> " + msg);
         }
     }
 }

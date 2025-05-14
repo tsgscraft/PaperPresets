@@ -1,7 +1,5 @@
 package de.tsgscraft.paperPresets.ClickableInventory;
 
-import org.bukkit.Bukkit;
-
 public class ItemPos {
 
     private final int index;

@@ -1,0 +1,6 @@
+# Command: /testCommand <arg1>
+# arg1: number 0<=
+enable_example_command: false
+
+#enable logging
+debug_log: false

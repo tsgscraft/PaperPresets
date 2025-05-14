@@ -9,7 +9,6 @@
 out/
 
 # Compiled class file
-*.class
 
 # Log file
 *.log
@@ -95,7 +94,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-target/
+target/*.jar
 
 pom.xml.tag
 pom.xml.releaseBackup
@@ -111,3 +110,5 @@ buildNumber.properties
 
 # Common working directory
 run/
+/target/maven-javadoc-plugin-stale-data.txt
+/target/javadoc-bundle-options/javadoc-options-javadoc-resources.xml

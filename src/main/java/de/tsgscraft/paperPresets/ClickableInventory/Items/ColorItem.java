@@ -1,7 +1,6 @@
 package de.tsgscraft.paperPresets.ClickableInventory.Items;
 
 import de.tsgscraft.paperPresets.ClickableInventory.ClickableInventory;
-import de.tsgscraft.paperPresets.ClickableInventory.ClickedAction;
 import de.tsgscraft.paperPresets.ClickableInventory.InventorySize;
 import de.tsgscraft.paperPresets.ClickableInventory.ItemPos;
 import de.tsgscraft.paperPresets.PaperPresets;
@@ -11,11 +10,17 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class ColorItem {
+
+    private Plugin plugin;
 
     private ChangeItem changeItem;
 
@@ -25,12 +30,13 @@ public class ColorItem {
 
     private final Color defaultColor = Color.WHITE;
 
-    public ColorItem(Player player) {
+    public ColorItem(Player player, Plugin plugin) {
+        this.plugin = plugin;
         Map<String, ChangeItemVariant> variants = new HashMap<>();
         for (Color color : Color.values()){
             variants.put(color.name(), new ChangeItemVariant(color.getMaterial(), color.name()).setName(Component.text(" ")).setHideTooltip(true));
         }
-        changeItem = new ChangeItemBuilder(defaultColor.getMaterial())
+        changeItem = new ChangeItemBuilder(defaultColor.getMaterial(), plugin)
                 .setName(Component.text(" "))
                 .setVariants(variants)
                 .build();
@@ -59,8 +65,8 @@ public class ColorItem {
         setVariant(player);
     }
 
-    public static ClickableInventory colorPicker(Player player, @Nullable Component name, @Nullable ClickableInventory pre){
-        ColorItem colorItem = new ColorItem(player);
+    public static ClickableInventory colorPicker(Plugin plugin, Player player, @Nullable Component name, @Nullable ClickableInventory pre){
+        ColorItem colorItem = new ColorItem(player, plugin);
 
         ClickableInventory inv = new ClickableInventory(PaperPresets.getInstance(), InventorySize.SIX, Objects.requireNonNullElseGet(name, () -> Component.text("Color Picker")))
                 .setItem(new ItemPos(0), colorItem.getChangeItem(), null)

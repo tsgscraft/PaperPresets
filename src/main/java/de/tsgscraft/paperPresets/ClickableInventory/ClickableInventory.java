@@ -24,7 +24,9 @@ import java.util.*;
 
 public class ClickableInventory implements InventoryHolder {
 
-    private static String invName;
+    private Plugin plugin;
+
+    private String invName;
 
     private Player player;
 
@@ -40,15 +42,17 @@ public class ClickableInventory implements InventoryHolder {
     private static NamespacedKey changeKey = new NamespacedKey(PaperPresets.getInstance(), "change_uuid");
 
     public ClickableInventory(Plugin plugin, InventorySize size){
+        this.plugin = plugin;
         this.inv = plugin.getServer().createInventory(this, 9* size.getAsInt());
         invName = "Chest";
-        PaperPresets.debugLog("Creating Clickable Inventory of Size: " + size.name());
+        PaperPresets.debugLog(plugin, "Creating Clickable Inventory of Size: " + size.name());
     }
 
     public ClickableInventory(Plugin plugin, InventorySize size, Component name){
+        this.plugin = plugin;
         this.inv = plugin.getServer().createInventory(this, 9* size.getAsInt(), name);
         invName = ((TextComponent) name).content();
-        PaperPresets.debugLog("Creating Clickable Inventory(" + name + ") of Size: " + size.name());
+        PaperPresets.debugLog(plugin, "Creating Clickable Inventory(" + name + ") of Size: " + size.name());
     }
 
     // name
@@ -254,10 +258,10 @@ public class ClickableInventory implements InventoryHolder {
     }
 
     private static void globalDebug(String msg){
-        PaperPresets.debugLog("Clickable Inventories > " + msg);
+        PaperPresets.globalDebugLog("Clickable Inventories > " + msg);
     }
 
-    private static void debug(String msg){
-        PaperPresets.debugLog("Clickable Inventory(" + invName + ") > " + msg);
+    private void debug(String msg){
+        PaperPresets.debugLog(plugin, "Clickable Inventory(" + invName + ") > " + msg);
     }
 }

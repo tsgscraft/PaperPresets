@@ -5,15 +5,17 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ChangeItemBuilder {
+
+    private Plugin plugin;
 
     private ItemStack itemStack;
 
@@ -26,7 +28,8 @@ public class ChangeItemBuilder {
     private NamespacedKey itemModel;
     private @Nullable Boolean glintOverride = null;
 
-    public ChangeItemBuilder(Material fallback){
+    public ChangeItemBuilder(Material fallback, Plugin plugin){
+        this.plugin = plugin;
         itemStack = new ItemStack(fallback);
     }
 
@@ -120,7 +123,7 @@ public class ChangeItemBuilder {
     }
 
     public ChangeItem build(){
-        return new ChangeItem(this);
+        return new ChangeItem(this, plugin);
     }
 
     public @NotNull ItemStack getFallback() {

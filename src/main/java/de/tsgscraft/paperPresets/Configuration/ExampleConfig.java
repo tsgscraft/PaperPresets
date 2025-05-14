@@ -1,6 +1,5 @@
 package de.tsgscraft.paperPresets.Configuration;
 
-import de.tsgscraft.paperPresets.PaperPresets;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;

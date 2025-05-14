@@ -4,11 +4,15 @@ import de.tsgscraft.paperPresets.ClickableInventory.ClickableInventory;
 import de.tsgscraft.paperPresets.PaperPresets;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
 
 public class ChangeItem extends ItemStack {
+
+    private Plugin plugin;
 
     private final Map<String, ChangeItemVariant> variants;
 
@@ -18,8 +22,9 @@ public class ChangeItem extends ItemStack {
 
     private @Nullable ChangeItemVariant selected;
 
-    public ChangeItem(ChangeItemBuilder builder){
+    public ChangeItem(ChangeItemBuilder builder, Plugin plugin){
         super(builder.getFallback());
+        this.plugin = plugin;
         this.builder = builder;
         uuid = UUID.randomUUID();
         variants = builder.getVariants();
@@ -31,7 +36,7 @@ public class ChangeItem extends ItemStack {
                 meta.getPersistentDataContainer().set(ClickableInventory.getChangeKey(), PersistentDataType.STRING, uuid.toString());
             });
         });
-        PaperPresets.debugLog("Creating Changeable Item: " + builder.getName());
+        PaperPresets.debugLog(plugin, "Creating Changeable Item: " + builder.getName());
     }
 
     public UUID getUniqueId() {
