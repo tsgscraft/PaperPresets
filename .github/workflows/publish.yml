@@ -32,6 +32,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: repo-tsgscraft
           directory: target/repo
+          branch: main
 
       # 4) Javadoc entpacken & deployen
       - name: Unpack Javadoc
@@ -45,3 +46,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ppdocs-tsgscraft
           directory: docs
+          branch: main
