@@ -1,0 +1,46 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v3
+
+      - name: Java einrichten
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'      # Eclipse Temurin (Adoptium)
+          java-version: '21'           # z. B. JDK 21
+
+      - name: Maven-Build
+        run: mvn package -DskipTests
+
+      - name: Artefakte hochladen
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-package
+          path: target/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Artefakte herunterladen
+        uses: actions/download-artifact@v3
+        with:
+          name: app-package
+
+      - name: Deploy zu Cloudflare Pages
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CF_PAGES_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: paperpresets
+          directory: target         # Verzeichnis mit den statischen Ausgaben :contentReference[oaicite:4]{index=4}
