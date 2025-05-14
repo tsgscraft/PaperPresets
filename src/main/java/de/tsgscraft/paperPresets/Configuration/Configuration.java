@@ -25,6 +25,9 @@ public abstract class Configuration {
      */
     public abstract void preload(Plugin plugin, String name, String fileName, File parent);
 
+    /**
+     * This gets called the setup is done.
+     */
     public abstract void enabled(Plugin plugin, String name, File file);
 
     public void saveDefault(String path, boolean replace){
