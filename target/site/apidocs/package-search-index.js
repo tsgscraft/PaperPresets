@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"Alle Packages","u":"allpackages-index.html"},{"l":"de.tsgscraft.paperPresets"},{"l":"de.tsgscraft.paperPresets.ClickableInventory"},{"l":"de.tsgscraft.paperPresets.ClickableInventory.Items"},{"l":"de.tsgscraft.paperPresets.Configuration"},{"l":"de.tsgscraft.paperPresets.internals"}];updateSearchResults();
