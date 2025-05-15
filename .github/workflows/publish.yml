@@ -8,6 +8,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -19,10 +22,9 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # 2) Maven Build & Deploy in target/repo
+      # 2) Maven Build & Deploy
       - name: Build and Deploy to Local Repo
         run: mvn clean deploy -DskipTests
-      # → Jetzt kompiliert Javac mit Release 21 ohne Fehler :contentReference[oaicite:4]{index=4}
 
       # 3) Deploy das Maven-Repo auf repo.tsgscraft.com
       - name: Deploy Maven Repo to repo.tsgscraft.com
@@ -34,11 +36,24 @@ jobs:
           directory: target/repo
           branch: main
 
-      # 4) Javadoc entpacken & deployen
-      - name: Unpack Javadoc
+      # 4) Bestehende Javadocs von vorherigen Deployments wiederherstellen
+      - name: Checkout existing Javadoc branch
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: gh-pages
+          path: old-docs
+          persist-credentials: false  # Nur lesender Checkout
+
+      # 5) Neue Javadoc generieren und in Versions-Ordner verschieben
+      - name: Extract Javadoc to versioned folder
         run: |
-          mkdir docs
-          unzip target/*-javadoc.jar -d docs
+          mkdir -p docs
+          cp -r old-docs/* docs/ || true
+          mkdir -p docs/${VERSION}
+          unzip target/*-javadoc.jar -d docs/${VERSION}
+
+      # 6) Deploy versionierte Javadoc auf ppdocs.tsgscraft.com
       - name: Deploy Javadoc to ppdocs.tsgscraft.com
         uses: cloudflare/pages-action@v1
         with:
