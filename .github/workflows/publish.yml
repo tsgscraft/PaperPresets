@@ -4,17 +4,16 @@ on:
   release:
     types: [published]
 
+env:
+  VERSION: ${{ github.ref_name }} # z. B. 1.1.2-dev4
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      VERSION: ${{ github.event.release.tag_name }}
-
     steps:
       - uses: actions/checkout@v4
 
-      # 1) JDK 21 installieren
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
@@ -22,11 +21,9 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # 2) Maven Build & Deploy
       - name: Build and Deploy to Local Repo
         run: mvn clean deploy -DskipTests
 
-      # 3) Deploy das Maven-Repo auf repo.tsgscraft.com
       - name: Deploy Maven Repo to repo.tsgscraft.com
         uses: cloudflare/pages-action@v1
         with:
@@ -36,29 +33,31 @@ jobs:
           directory: target/repo
           branch: main
 
-      # 4) Bestehende Javadocs von vorherigen Deployments wiederherstellen
-      - name: Checkout existing Javadoc branch
+      # 📦 Javadoc entpacken und in versionsspezifischen Ordner legen
+      - name: Prepare versioned javadoc folder
+        run: |
+          mkdir -p docs/$VERSION
+          unzip target/*-javadoc.jar -d docs/$VERSION
+
+      # 📤 Vorherige Versionen beibehalten (gh-pages oder Pages-Projekt mit persistierendem Branch)
+      - name: Checkout existing docs
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
-          ref: gh-pages
-          path: old-docs
-          persist-credentials: false  # Nur lesender Checkout
+          ref: main
+          repository: tsgscraft/ppdocs
+          path: all-docs
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5) Neue Javadoc generieren und in Versions-Ordner verschieben
-      - name: Extract Javadoc to versioned folder
+      - name: Copy current version into all-docs
         run: |
-          mkdir -p docs
-          cp -r old-docs/* docs/ || true
-          mkdir -p docs/${VERSION}
-          unzip target/*-javadoc.jar -d docs/${VERSION}
+          mkdir -p all-docs/$VERSION
+          cp -r docs/$VERSION/* all-docs/$VERSION/
 
-      # 6) Deploy versionierte Javadoc auf ppdocs.tsgscraft.com
       - name: Deploy Javadoc to ppdocs.tsgscraft.com
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ppdocs-tsgscraft
-          directory: docs
+          directory: all-docs
           branch: main
