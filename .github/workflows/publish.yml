@@ -3,6 +3,10 @@ name: Publish Maven Artifacts & Javadoc
 on:
   release:
     types: [published]
+    
+permissions:
+  contents: write        # erlaubt pushen in beliebige Branches
+  pages: write          # (falls du cloudflare/pages-action nutzt)
 
 env:
   VERSION: ${{ github.event.release.tag_name }}
